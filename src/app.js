@@ -132,16 +132,12 @@ gpii.app.makeTray = function (icon) {
   * dialog every time a new message should be displayed.
   */
 gpii.app.makeWaitDialog = function () {
-    var screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
-
     var dialog = new BrowserWindow({
         show: false,
         frame: false,
         transparent: true,
         alwaysOnTop: true,
-        skipTaskBar: true,
-        x: screenSize.width - 900, // because the default width is 800
-        y: screenSize.height - 600 // because the default height is 600
+        skipTaskBar: true
     });
 
     var url = fluid.stringTemplate("file://%dirName/html/message.html", {
@@ -239,6 +235,7 @@ gpii.app.logonChangeListener = function (that, model) {
  * @param that {Object} the app module
  */
 gpii.app.displayWaitDialog = function (that) {
+    that.dialog.maximize();
     that.dialog.show();
     // Hack to ensure it stays on top, even as the GPII autoconfiguration starts applications, etc., that might
     // otherwise want to be on top
@@ -248,6 +245,7 @@ gpii.app.displayWaitDialog = function (that) {
         if (!that.dialog.isVisible()) {
             clearInterval(interval);
         };
+        that.dialog.maximize();
         that.dialog.setAlwaysOnTop(true);
     }, 100);
 
