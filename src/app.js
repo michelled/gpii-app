@@ -391,33 +391,49 @@ fluid.defaults("gpii.app.menuInAppDev", {
     snapsets: {
         label: "{that}.options.menuLabels.keyIn",
         submenu: [{
-            label: "Alice",
+            label: "Larger 125%",
             click: "onKeyIn",
-            token: "alice"
+            token: "snapset_1a"
         }, {
-            label: "Davey",
+            label: "Larger 150%",
             click: "onKeyIn",
-            token: "davey"
+            token: "snapset_1b"
         }, {
-            label: "David",
+            label: "Larger 175%",
             click: "onKeyIn",
-            token: "david"
+            token: "snapset_1c"
         }, {
-            label: "Elaine",
+            label: "Dark & Larger 125%",
             click: "onKeyIn",
-            token: "elaine"
+            token: "snapset_2a"
         }, {
-            label: "Elmer",
+            label: "Dark & Larger 150%",
             click: "onKeyIn",
-            token: "elmer"
+            token: "snapset_2b"
         }, {
-            label: "Elod",
+            label: "Dark & Larger 175%",
             click: "onKeyIn",
-            token: "elod"
+            token: "snapset_2c"
         }, {
-            label: "Livia",
+            label: "Read To Me",
             click: "onKeyIn",
-            token: "livia"
+            token: "snapset_3"
+        }, {
+            label: "Magnifier 200%",
+            click: "onKeyIn",
+            token: "snapset_4a"
+        }, {
+            label: "Magnifier 400%",
+            click: "onKeyIn",
+            token: "snapset_4b"
+        }, {
+            label: "Magnifier 200% & Display Scaling 175%",
+            click: "onKeyIn",
+            token: "snapset_4c"
+        }, {
+            label: "Dark Magnifier 200%",
+            click: "onKeyIn",
+            token: "snapset_4d"
         }]
     },
     exit: {
