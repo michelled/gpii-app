@@ -1,4 +1,4 @@
-# GPII Application Wrapper
+# GPII Application Wra
 
 gpii-app is an Electron-based application wrapper for the GPII autopersonalization system.
 
