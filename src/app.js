@@ -58,7 +58,7 @@ fluid.defaults("gpii.app", {
             }
         },
         dialog: {
-            type: "gpii.app.dialog",
+            type: "gpii.app.waitDialog",
             createOnEvent: "onPrequisitesReady",
             options: {
                 model: {
@@ -360,19 +360,16 @@ gpii.app.makeTray = function (icon) {
 /**
  * Component that contains an Electron Dialog.
  */
-
 fluid.defaults("gpii.app.dialog", {
     gradeNames: "fluid.modelComponent",
     model: {
-        showDialog: false,
-        dialogMinDisplayTime: 2000, // minimum time to display dialog to user in ms
-        dialogStartTime: 0, // timestamp recording when the dialog was displayed to know when we can dismiss it again
-        timeout: 0
+        showDialog: false
     },
     members: {
         dialog: {
             expander: {
-                funcName: "gpii.app.makeWaitDialog"
+                funcName: "gpii.app.makeDialog",
+                args: ["message.html"]
             }
         }
     },
@@ -381,9 +378,6 @@ fluid.defaults("gpii.app.dialog", {
             funcName: "gpii.app.showHideWaitDialog",
             args: ["{that}", "{change}.value"]
         }
-    },
-    listeners: {
-        "onDestroy.clearTimers": "gpii.app.clearTimers({that})"
     }
 });
 
@@ -395,8 +389,9 @@ gpii.app.clearTimers = function (that) {
 /**
  * Creates a dialog. This is done up front to avoid the delay from creating a new
  * dialog every time a new message should be displayed.
+ * @param fileName {String} html file that holds the markup for the dialog
  */
-gpii.app.makeWaitDialog = function () {
+gpii.app.makeDialog = function (fileName) {
     var screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
 
     var dialog = new BrowserWindow({
@@ -409,14 +404,49 @@ gpii.app.makeWaitDialog = function () {
         y: screenSize.height - 600 // because the default height is 600
     });
 
-    var url = fluid.stringTemplate("file://%dirName/html/message.html", {
-        dirName: __dirname
+    var url = fluid.stringTemplate("file://%dirName/html/%fileName", {
+        dirName: __dirname,
+        fileName: fileName
     });
     dialog.loadURL(url);
     return dialog;
 };
 
 
+/**
+ * Component that creates a dialog that has a spinner.
+ */
+fluid.defaults("gpii.app.waitDialog", {
+    gradeNames: "gpii.app.dialog",
+    model: {
+        dialogMinDisplayTime: 2000, // minimum time to display dialog to user in ms
+        dialogStartTime: 0, // timestamp recording when the dialog was displayed to know when we can dismiss it again
+        timeout: 0
+    },
+    modelListeners: {
+        "showDialog": {
+            funcName: "gpii.app.showHideWaitDialog",
+            args: ["{that}", "{change}.value"]
+        }
+    },
+    distributeOptions: {
+        record: {
+            funcName: "gpii.app.makeDialog",
+            args: ["wait.html"]
+        },
+        target: "{that}.options.members.dialog.expander"
+    },
+    listeners: {
+        "onDestroy.clearTimers": "gpii.app.clearTimers({that})"
+    }
+});
+
+
+/**
+ * Shows or hides the wait dialog based on the value of 'showDialog'.
+ * @param that {Object}
+ * @param showDialog {boolean} true will show the dialog, false with hide it
+ */
 gpii.app.showHideWaitDialog = function (that, showDialog) {
     showDialog ? gpii.app.displayWaitDialog(that) : gpii.app.dismissWaitDialog(that);
 };
