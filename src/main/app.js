@@ -22,7 +22,7 @@ require("./gpiiConnector.js");
 require("./menu.js"); // menuInApp, menuInAppDev
 require("./tray.js");
 require("./psp.js");
-require("./waitDialog.js");
+require("./dialog.js");
 
 require("./networkCheck.js");
 

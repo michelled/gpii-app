@@ -1,6 +1,5 @@
 /*!
 GPII Application
-Copyright 2016 Steven Githens
 Copyright 2016-2017 OCAD University
 
 Licensed under the New BSD license. You may not use this file except in
@@ -19,60 +18,19 @@ var gpii  = fluid.registerNamespace("gpii");
 
 require("./utils.js");
 
-/**
- * Component that contains an Electron Dialog.
- */
-
-fluid.defaults("gpii.app.dialog", {
-    gradeNames: "fluid.modelComponent",
-
-    attrs: {
-        width: 800,
-        height: 600,
-        show: false,
-        frame: false,
-        transparent: true,
-        alwaysOnTop: true,
-        skipTaskBar: true
-    },
+fluid.defaults("gpii.app.waitDialog", {
+    gradeNames: "gpii.app.dialog",
     model: {
-        showDialog: false,
         dialogMinDisplayTime: 2000, // minimum time to display dialog to user in ms
         dialogStartTime: 0, // timestamp recording when the dialog was displayed to know when we can dismiss it again
         timeout: 0
     },
-    members: {
-        dialog: {
-            expander: {
-                funcName: "gpii.app.dialog.makeWaitDialog",
-                args: [
-                    "{that}.options.attrs",
-                    "@expand:{that}.getWindowPosition()"
-                ]
-            }
-        }
-    },
-    modelListeners: {
-        "showDialog": {
-            funcName: "gpii.app.dialog.showHideWaitDialog",
-            args: ["{that}", "{change}.value"]
-        }
-    },
     listeners: {
-        "onDestroy.clearTimers": "gpii.app.dialog.clearTimers({that})",
-        "onDestroy.cleanupElectron": {
-            this: "{that}.dialog",
-            method: "destroy"
-        }
+        "onDestroy.clearTimers": "gpii.app.dialog.clearTimers({that})"
     },
-    invokers: {
-        getWindowPosition: {
-            funcName: "gpii.app.getWindowPosition",
-            args: [
-                "{that}.options.attrs.width",
-                "{that}.options.attrs.height"
-            ]
-        }
+    showDialog: {
+        funcName: "gpii.app.dialog.showHideWaitDialog",
+        args: ["{that}", "{change}.value"]
     }
 });
 
@@ -80,20 +38,6 @@ gpii.app.dialog.clearTimers = function (that) {
     clearTimeout(that.dismissWaitTimeout);
     clearInterval(that.displayWaitInterval);
 };
-
-/**
- * Creates a dialog. This is done up front to avoid the delay from creating a new
- * dialog every time a new message should be displayed.
- */
-gpii.app.dialog.makeWaitDialog = function (windowOptions, position) {
-    var dialog = new BrowserWindow(windowOptions);
-    dialog.setPosition(position.x, position.y);
-
-    var url = fluid.stringTemplate("file://%gpii-app/src/renderer/waitDialog/index.html", fluid.module.terms());
-    dialog.loadURL(url);
-    return dialog;
-};
-
 
 gpii.app.dialog.showHideWaitDialog = function (that, showDialog) {
     showDialog ? gpii.app.dialog.displayWaitDialog(that) : gpii.app.dialog.dismissWaitDialog(that);
@@ -148,4 +92,76 @@ gpii.app.dialog.dismissWaitDialog = function (that) {
     } else {
         that.dialog.hide();
     }
+};
+
+
+/**
+ * Component that contains an Electron Dialog.
+ */
+
+fluid.defaults("gpii.app.dialog", {
+    gradeNames: "fluid.modelComponent",
+    attrs: {
+        width: 800,
+        height: 600,
+        show: false,
+        frame: false,
+        transparent: true,
+        alwaysOnTop: true,
+        skipTaskBar: true
+    },
+    model: {
+        showDialog: false
+    },
+    members: {
+        dialog: {
+            expander: {
+                funcName: "gpii.app.dialog.makeDialog",
+                args: [
+                    "{that}.options.attrs",
+                    "@expand:{that}.getWindowPosition()"
+                ]
+            }
+        }
+    },
+    modelListeners: {
+        "showDialog": "{that}.showDialog"
+    },
+    listeners: {
+        "onDestroy.cleanupElectron": {
+            this: "{that}.dialog",
+            method: "destroy"
+        }
+    },
+    invokers: {
+        getWindowPosition: {
+            funcName: "gpii.app.getWindowPosition",
+            args: [
+                "{that}.options.attrs.width",
+                "{that}.options.attrs.height"
+            ]
+        },
+        showDialog: {
+            funcName: "gpii.app.dialog.showHideDialog",
+            args: ["{that}", "{change}.value"]
+        }
+    }
+});
+
+/**
+ * Creates a dialog. This is done up front to avoid the delay from creating a new
+ * dialog every time a new message should be displayed.
+ */
+gpii.app.dialog.makeDialog = function (windowOptions, position) {
+    var dialog = new BrowserWindow(windowOptions);
+    dialog.setPosition(position.x, position.y);
+
+    var url = fluid.stringTemplate("file://%gpii-app/src/renderer/dialog/index.html", fluid.module.terms());
+    dialog.loadURL(url);
+    return dialog;
+};
+
+
+gpii.app.dialog.showHideDialog = function (that, showDialog) {
+    showDialog ? that.dialog.show() : that.dialog.hide();
 };
